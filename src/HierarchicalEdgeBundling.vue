@@ -234,7 +234,7 @@ export default {
       const arcs = g.selectAll('.category').data(categories)
       const arc = layout.getArc(d3)
 
-      const newArcs = arcs.enter().append('path')
+      const newArcs = arcs.enter().append('svg:path')
         .attr('class', 'category')
         .attr('id', function (d, i) { return 'categoryArc_' + i })
         .attr('d', d => arc(d))
