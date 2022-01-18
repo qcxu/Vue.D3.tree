@@ -47,9 +47,19 @@ export default {
   },
 
   getLine (d3) {
-    return d3.radialLine()
-              .radius(d => d.y)
-              .angle(d => d.x / 180 * Math.PI)
+    return d3
+      .radialLine()
+      .radius((d) => d.y - 40)
+      .angle((d) => (d.x / 180) * Math.PI)
+  },
+
+  getArc (d3) {
+    return d3
+      .arc()
+      .outerRadius((d) => d.r - 5)
+      .innerRadius((d) => d.r - 35)
+      .startAngle((d) => (d.start / 180) * Math.PI)
+      .endAngle((d) => (d.end / 180) * Math.PI)
   },
 
   verticalLine (target, source) {

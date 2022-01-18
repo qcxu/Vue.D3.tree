@@ -59,7 +59,9 @@ export default {
   data () {
     return {
       textContraint: null,
-      highlightedNode: null
+      highlightedNode: null,
+      m0: null,
+      rotate: 0
     }
   },
 
@@ -69,8 +71,22 @@ export default {
           .attr('width', size.width)
           .attr('height', size.height)
     const g = this.transformSvg(svg.append('g'), size)
+    console.log(size)
+
+    g.append('svg:path')
+          .attr('class', 'arc')
+          .attr('d', d3.arc().outerRadius(this.$el.clientHeight / 2).innerRadius(0).startAngle(0).endAngle(2 * Math.PI))
+          // .attr('d', d3.svg.arc().outerRadius(ry - 120).innerRadius(0).startAngle(0).endAngle(2 * Math.PI))
+          // .attr('d', d3.svg.arc().outerRadius(ry - 100).innerRadius(280).startAngle((1.44 / 180) * Math.PI).endAngle((5.76 / 180) * Math.PI))
+          .on('mousedown', this.mouseDown)
+
+    d3.select(window)
+          .on('mousemove', this.mouseMove)
+          .on('mouseup', this.mouseUp)
 
     const tree = this.tree
+    // console.log('tree')
+    // console.log(this.data)
     this.internaldata = {
       svg,
       g,
@@ -80,9 +96,10 @@ export default {
     if (!this.data) {
       return
     }
-
     this.onData(this.data)
     this.links && this.onLinks(this.links)
+    this.onCategories()
+
     this.$el.addEventListener('click', this.handleClickOutside, true)
   },
 
@@ -170,6 +187,7 @@ export default {
 
       if ((this.textContraint) && (this.textContraint.xExtreme.value === xExtreme.value) &&
             (this.textContraint.yExtreme.value === yExtreme.value)) {
+        // console.log(allNodes)
         return allNodesPromise
       }
 
@@ -187,7 +205,7 @@ export default {
         return
       }
       const edges = g.selectAll('.link').data(links, l => l.source._id + '-' + l.target._id + '-' + l.type)
-      const line = layout.getLine(d3).curve(d3.curveBundle.beta(0.95))
+      const line = layout.getLine(d3).curve(d3.curveBundle.beta(0.55))
 
       const newEdges = edges.enter().append('path').attr('class', 'link')
                             .attr('d', d => roundPath(line(d.source.path(d.target).map(p => ({x: p.x, y: 0.1})))))
@@ -196,6 +214,56 @@ export default {
       const promise = toPromise(allEdges.transition().duration(this.duration).attr('d', d => roundPath(line(d.source.path(d.target)))))
 
       edges.exit().remove()
+      return promise
+    },
+
+    updateCategories () {
+      const {g, categories} = this.internaldata
+      if (!categories) {
+        return
+      }
+      // const edges = g.selectAll('.link').data(links, l => l.source._id + '-' + l.target._id + '-' + l.type)
+      // const line = layout.getLine(d3).curve(d3.curveBundle.beta(0.55))
+
+      // const newEdges = edges.enter().append('path').attr('class', 'link')
+      //                       .attr('d', d => roundPath(line(d.source.path(d.target).map(p => ({x: p.x, y: 0.1})))))
+
+      // const allEdges = this.internaldata.edges = edges.merge(newEdges)
+      // const promise = toPromise(allEdges.transition().duration(this.duration).attr('d', d => roundPath(line(d.source.path(d.target)))))
+
+      const arcs = g.selectAll('.category').data(categories)
+      const arc = layout.getArc(d3)
+
+      const newArcs = arcs.enter().append('path')
+        .attr('class', 'category')
+        .attr('id', function (d, i) { return 'categoryArc_' + i })
+        .attr('d', d => arc(d))
+        .style('fill', function (d) { return d.color })
+      const allArcs = this.internaldata.arcs = arcs.merge(newArcs)
+      const promise = toPromise(allArcs.transition().duration(this.duration * 2).attr('opacity', 1))
+
+      arcs.exit().remove()
+      return promise
+    },
+
+    updateCategoryTexts () {
+      const {g, categories} = this.internaldata
+      if (!categories) {
+        return
+      }
+
+      const arcTexts = g.selectAll('.categoryText').data(categories)
+      const newArcTexts = arcTexts.enter().append('svg:text')
+        .attr('class', 'categoryText')
+        .attr('x', 5) // Move the text from the start angle of the arc
+        .attr('dy', 20) // Move the text down
+        .append('svg:textPath')
+        .attr('xlink:href', function (d, i) { return '#categoryArc_' + i })
+        .text(function (d) { return d.name })
+      const allArcTexts = this.internaldata.arcTexts = arcTexts.merge(newArcTexts)
+      const promise = toPromise(allArcTexts.transition().duration(this.duration * 2).attr('opacity', 1))
+
+      arcTexts.exit().remove()
       return promise
     },
 
@@ -209,6 +277,65 @@ export default {
 
     nodeClick (d) {
       this.emit('mouseNodeClick', d)
+    },
+
+    mouse (e) {
+      return [e.pageX - this.$el.clientWidth / 2, e.pageY - this.$el.clientHeight / 2]
+    },
+
+    mouseDown () {
+      this.m0 = this.mouse(d3.event)
+      // console.log(this.m0)
+      d3.event.preventDefault()
+    },
+
+    mouseMove () {
+      d3.event.preventDefault()
+      if (this.m0) {
+        // console.log(d3.select(this.$el))
+        var m1 = this.mouse(d3.event)
+        var dm = Math.atan2(this.cross(this.m0, m1), this.dot(this.m0, m1)) * 180 / Math.PI
+        d3.select(this.$el).style('-webkit-transform', 'translateY(0px)rotateZ(' + dm + 'deg)translateY(0px)')
+      }
+    },
+
+    mouseUp () {
+      if (this.m0) {
+        const {g, nodes} = this.internaldata
+        var m1 = this.mouse(d3.event)
+        var dm = Math.atan2(this.cross(this.m0, m1), this.dot(this.m0, m1)) * 180 / Math.PI
+
+        this.rotate += dm
+        if (this.rotate > 360) this.rotate -= 360
+        else if (this.rotate < 0) this.rotate += 360
+        this.m0 = null
+
+        d3.select(this.$el).style('-webkit-transform', null)
+        const size = this.getSize()
+        let that = this
+        // console.log(this.rotate)
+        g.attr('transform', 'translate(' + size.width / 2 + ',' + size.height / 2 + ')rotate(' + this.rotate + ')')
+          .selectAll('g.nodetree text')
+          .attr('text-anchor', function (d) {
+            // console.log(d)
+            // console.log((d.layoutInfo.rotate + that.rotate + 90) % 360)
+            return (d.layoutInfo.rotate + that.rotate + 90) % 360 < 180 ? 'start' : 'end'
+          })
+          .attr('transform', function (d) { return (d.layoutInfo.rotate + that.rotate + 90) % 360 < 180 ? `rotate(${d.layoutInfo.rotate})` : `rotate(${d.layoutInfo.rotate + 180} )` })
+        nodes.each(n => {
+          n.layoutInfo.anchor = (n.layoutInfo.rotate + that.rotate + 90) % 360 < 180 ? 'start' : 'end'
+          n.layoutInfo.textRotate = (n.layoutInfo.rotate + that.rotate + 90) % 360 < 180 ? 0 : 180
+        })
+        // console.log(nodes)
+      }
+    },
+
+    cross (a, b) {
+      return a[0] * b[1] - a[1] * b[0]
+    },
+
+    dot (a, b) {
+      return a[0] * b[0] + a[1] * b[1]
     },
 
     emit (name, d) {
@@ -305,7 +432,46 @@ export default {
 
       const {map} = this.internaldata
       this.internaldata.links = links.map(link => ({source: map[link.source], target: map[link.target], type: link.type}))
+      // console.log(this.internaldata.links)
       this.updateLinks()
+    },
+
+    onCategories () {
+      const {nodes} = this.internaldata
+      console.log(this.internaldata)
+      let categories = {}
+      nodes.each(n => {
+        (categories[n.parent.data.text] = categories[n.parent.data.text] || []).push(n)
+      })
+      console.log(categories)
+      let arcs = []
+      for (const [category, childNodes] of Object.entries(categories)) {
+        let start = childNodes[0].x
+        console.log(start)
+        let end = childNodes[0].x
+        let r = childNodes[0].y
+        childNodes.forEach(n => {
+          start = Math.min(start, n.x)
+          end = Math.max(start, n.x)
+        })
+        arcs.push({
+          name: category,
+          start: start,
+          end: end,
+          r: r
+        })
+      }
+      console.log(arcs)
+
+      var palette = ['#D5CFD4', '#EAE4E9', '#FFF1E6', '#FDE2E4', '#FAD2E1', '#E2ECE9', '#BEE1E6', '#F0EFEB', '#DFE7FD', '#CDDAFD', '#D2DDFD']
+      arcs.forEach((e, i) => {
+        e['color'] = palette[i]
+        // colors[e.name] = palette[i]
+      })
+      console.log(arcs)
+      this.internaldata.categories = arcs
+      this.updateCategories()
+      this.updateCategoryTexts()
     },
 
     instantClean () {
@@ -316,7 +482,7 @@ export default {
 
     redraw () {
       const {root} = this.internaldata
-      return root ? Promise.all([this.updateNodes(), this.updateLinks()]) : Promise.resolve('no graph')
+      return root ? Promise.all([this.updateNodes(), this.updateLinks(), this.updateCategories(), this.updateCategoryTexts()]) : Promise.resolve('no graph')
     },
 
     applyTransition (size, {margin}) {
@@ -413,5 +579,15 @@ export default {
 
 .graph.detailed .nodetree text{
   opacity: 0.1;
+}
+
+.graph.detailed .category,
+.graph.detailed .categoryText{
+  opacity: 0.1;
+}
+
+path.arc {
+  cursor: move;
+  fill: #fff;
 }
 </style>

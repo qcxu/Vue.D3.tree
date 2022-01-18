@@ -53,7 +53,9 @@
   </div>
  
    <div class="col-md-9 panel panel-default">
-    <hierarchical-edge-bundling class="graph-root" ref="graph" :maxTextWidth="50" identifier="id" :duration="duration" @mouseNodeOver="mouseNodeOver" @mouseNodeOut="mouseNodeOut" :data="tree" :links="links" node-text="text" :margin-x="marginX" :margin-y="marginY"/>
+    <hierarchical-edge-bundling class="graph-root" ref="graph" :maxTextWidth="-1" identifier="id" 
+    :duration="duration" @mouseNodeOver="mouseNodeOver" @mouseNodeOut="mouseNodeOut" :data="tree" 
+    :links="links" node-text="text" :margin-x="marginX" :margin-y="marginY"/>
   </div>
 
   </div>
@@ -61,22 +63,44 @@
 
 <script>
 import {hierarchicalEdgeBundling} from '../../src/'
-//  import rawVm from '../../data/DiscogsClientvm'
+import rawVm from '../../data/DiscogsClientvm'
 //  import rawVm from '../../data/nhibernatevm'
-import rawVm from '../../data/vm'
+// import rawVm from '../../data/vm'
 import CircularJson from 'circular-json'
 import EventLogger from './EventLogger'
 const vm = CircularJson.parse(rawVm)
 
 const data = {
   duration: 750,
-  marginX: 30,
-  marginY: 30,
+  marginX: 10,
+  marginY: 10,
   events: [],
   loading: false,
   highlightedNode: null,
   tree: vm.Graph.tree,
   links: vm.Graph.links
+  // tree: {
+  //   text: 'father',
+  //   children: [{
+  //     text: 'son1',
+  //     children: [{text: 'grandson', id: 1}, {text: 'grandson2', id: 2}]
+  //   }, {
+  //     text: 'son2',
+  //     children: [{text: 'grandson3', id: 3}, {text: 'grandson4', id: 4}]
+  //   }, {
+  //     text: 'son3',
+  //     children: [{text: 'grandson5', id: 5}, {text: 'grandson6', id: 6}]
+  //   }]
+  // },
+  // links: [
+  //   {source: 3, target: 1, type: 1},
+  //   {source: 3, target: 4, type: 2}
+  // ],
+  // linkTypes: [
+  //   {id: 1, name: 'depends', symmetric: true},
+  //   {id: 2, name: 'implement', inName: 'implements', outName: 'is implemented by'},
+  //   {id: 3, name: 'uses', inName: 'uses', outName: 'is used by'}
+  // ]
 }
 
 export default {
@@ -97,7 +121,7 @@ export default {
       })
     },
     onEvent (eventName, data) {
-      console.log(eventName, data)
+      // console.log(eventName, data)
       this.events.push({eventName, data: data.data})
     },
     mouseNodeOver (event) {
@@ -134,6 +158,6 @@ export default {
 
 .graph-root {
   height: 800px;
-  width: 100%;
+  width: 800px;
 }
 </style>
