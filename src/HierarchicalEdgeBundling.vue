@@ -191,6 +191,7 @@ export default {
       if ((this.textContraint) && (this.textContraint.xExtreme.value === xExtreme.value) &&
             (this.textContraint.yExtreme.value === yExtreme.value)) {
         // console.log(allNodes)
+        this.onCategories()
         return allNodesPromise
       }
 
@@ -433,8 +434,27 @@ export default {
       root.x0 = root.x
       root.y0 = root.y
       this.updateNodes()
+      // this.onCategories()
+    },
 
+    onLinks (links) {
+      if (!this.data) {
+        return
+      }
+
+      if (!links) {
+        this.internaldata.links = this.internaldata.edges = null
+      }
+
+      const {map} = this.internaldata
+      this.internaldata.links = links.map(link => ({source: map[link.source], target: map[link.target], type: link.type}))
+      // console.log(this.internaldata.links)
+      this.updateLinks()
+    },
+
+    onCategories () {
       const {nodes} = this.internaldata
+      console.log('onCategories - internaldata')
       console.log(this.internaldata)
       let categories = {}
       nodes.each(n => {
@@ -468,67 +488,6 @@ export default {
       console.log(categoryArcs)
       this.arcCategory = categoryArcs
       this.internaldata.categories = categoryArcs
-      this.updateCategories()
-      this.updateCategoryTexts()
-    },
-
-    onLinks (links) {
-      if (!this.data) {
-        return
-      }
-
-      if (!links) {
-        this.internaldata.links = this.internaldata.edges = null
-      }
-
-      const {map} = this.internaldata
-      this.internaldata.links = links.map(link => ({source: map[link.source], target: map[link.target], type: link.type}))
-      // console.log(this.internaldata.links)
-      this.updateLinks()
-    },
-
-    onCategories (categories) {
-      if (!this.data) {
-        return
-      }
-
-      if (!categories) {
-        this.internaldata.categories = null
-      }
-      // const {nodes} = this.internaldata
-      // console.log(this.internaldata)
-      // let categories = {}
-      // nodes.each(n => {
-      //   (categories[n.parent.data.text] = categories[n.parent.data.text] || []).push(n)
-      // })
-      // console.log(categories)
-      // let categoryArcs = []
-      // for (const [category, childNodes] of Object.entries(categories)) {
-      //   let start = childNodes[0].x
-      //   console.log(start)
-      //   let end = childNodes[0].x
-      //   let r = childNodes[0].y
-      //   childNodes.forEach(n => {
-      //     start = Math.min(start, n.x)
-      //     end = Math.max(start, n.x)
-      //   })
-      //   categoryArcs.push({
-      //     name: category,
-      //     start: start,
-      //     end: end,
-      //     r: r
-      //   })
-      // }
-      // console.log(categoryArcs)
-
-      // var palette = ['#D5CFD4', '#EAE4E9', '#FFF1E6', '#FDE2E4', '#FAD2E1', '#E2ECE9', '#BEE1E6', '#F0EFEB', '#DFE7FD', '#CDDAFD', '#D2DDFD']
-      // categoryArcs.forEach((e, i) => {
-      //   e['color'] = palette[i]
-      //   // colors[e.name] = palette[i]
-      // })
-      // console.log(categoryArcs)
-      // this.arcCategory = categoryArcs
-      this.internaldata.categories = categories
       this.updateCategories()
       this.updateCategoryTexts()
     },

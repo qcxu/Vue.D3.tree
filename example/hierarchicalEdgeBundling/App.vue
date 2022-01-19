@@ -78,35 +78,35 @@ const data = {
   loading: false,
   highlightedNode: null,
   tree: vm.Graph.tree,
-  links: vm.Graph.links,
-  categories: [{
-    'name': 'Query',
-    'start': 5.684210526315789,
-    'end': 28.421052631578945,
-    'r': 253.967282208187,
-    'color': '#D5CFD4'
-  },
-  {
-    'name': 'Result',
-    'start': 39.78947368421053,
-    'end': 238.73684210526315,
-    'r': 253.967282208187,
-    'color': '#EAE4E9'
-  },
-  {
-    'name': 'Internal',
-    'start': 253.89473684210526,
-    'end': 269.05263157894734,
-    'r': 253.967282208187,
-    'color': '#FFF1E6'
-  },
-  {
-    'name': 'DiscogsClient',
-    'start': 291.7894736842105,
-    'end': 348.63157894736844,
-    'r': 253.967282208187,
-    'color': '#FDE2E4'
-  }]
+  links: vm.Graph.links
+  // categories: [{
+  //   'name': 'Query',
+  //   'start': 5.684210526315789,
+  //   'end': 28.421052631578945,
+  //   'r': 253.967282208187,
+  //   'color': '#D5CFD4'
+  // },
+  // {
+  //   'name': 'Result',
+  //   'start': 39.78947368421053,
+  //   'end': 238.73684210526315,
+  //   'r': 253.967282208187,
+  //   'color': '#EAE4E9'
+  // },
+  // {
+  //   'name': 'Internal',
+  //   'start': 253.89473684210526,
+  //   'end': 269.05263157894734,
+  //   'r': 253.967282208187,
+  //   'color': '#FFF1E6'
+  // },
+  // {
+  //   'name': 'DiscogsClient',
+  //   'start': 291.7894736842105,
+  //   'end': 348.63157894736844,
+  //   'r': 253.967282208187,
+  //   'color': '#FDE2E4'
+  // }]
   // tree: {
   //   text: 'father',
   //   children: [{
