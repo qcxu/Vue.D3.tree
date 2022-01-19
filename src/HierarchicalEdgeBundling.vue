@@ -61,7 +61,10 @@ export default {
       textContraint: null,
       highlightedNode: null,
       m0: null,
-      rotate: 0
+      rotate: 0,
+      arcG: null,
+      lineG: null,
+      arcCategory: null
     }
   },
 
@@ -201,6 +204,7 @@ export default {
 
     updateLinks () {
       const {g, links} = this.internaldata
+      this.lineG = g
       if (!links) {
         return
       }
@@ -219,6 +223,8 @@ export default {
 
     updateCategories () {
       const {g, categories} = this.internaldata
+      this.arcG = g
+      this.arcCategory = categories
       if (!categories) {
         return
       }
@@ -452,7 +458,7 @@ export default {
         (categories[n.parent.data.text] = categories[n.parent.data.text] || []).push(n)
       })
       console.log(categories)
-      let arcs = []
+      let categoryArcs = []
       for (const [category, childNodes] of Object.entries(categories)) {
         let start = childNodes[0].x
         console.log(start)
@@ -462,22 +468,22 @@ export default {
           start = Math.min(start, n.x)
           end = Math.max(start, n.x)
         })
-        arcs.push({
+        categoryArcs.push({
           name: category,
           start: start,
           end: end,
           r: r
         })
       }
-      console.log(arcs)
+      console.log(categoryArcs)
 
       var palette = ['#D5CFD4', '#EAE4E9', '#FFF1E6', '#FDE2E4', '#FAD2E1', '#E2ECE9', '#BEE1E6', '#F0EFEB', '#DFE7FD', '#CDDAFD', '#D2DDFD']
-      arcs.forEach((e, i) => {
+      categoryArcs.forEach((e, i) => {
         e['color'] = palette[i]
         // colors[e.name] = palette[i]
       })
-      console.log(arcs)
-      this.internaldata.categories = arcs
+      console.log(categoryArcs)
+      this.internaldata.categories = categoryArcs
       this.updateCategories()
       this.updateCategoryTexts()
     },
