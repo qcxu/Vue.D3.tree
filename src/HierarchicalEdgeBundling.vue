@@ -232,12 +232,20 @@ export default {
       // const promise = toPromise(allEdges.transition().duration(this.duration).attr('d', d => roundPath(line(d.source.path(d.target)))))
 
       const arcs = g.selectAll('.category').data(categories)
-      const arc = layout.getArc(d3)
+      // const arc = layout.getArc(d3)
 
       const newArcs = arcs.enter().append('svg:path')
         .attr('class', 'category')
         .attr('id', function (d, i) { return 'categoryArc_' + i })
-        .attr('d', d => arc(d))
+        // .attr('d', d => arc(d))
+        .attr('d', function (d) {
+          return d3.arc()({
+            outerRadius: d.r - 5,
+            innerRadius: d.r - 35,
+            startAngle: (d.start / 180) * Math.PI,
+            endAngle: (d.end / 180) * Math.PI
+          })
+        })
         .style('fill', function (d) { return d.color })
       const allArcs = this.internaldata.arcs = arcs.merge(newArcs)
       const promise = toPromise(allArcs.transition().duration(this.duration * 2).attr('opacity', 1))
