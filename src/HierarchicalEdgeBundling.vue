@@ -224,7 +224,7 @@ export default {
     updateCategories () {
       const {g, categories} = this.internaldata
       this.arcG = g
-      this.arcCategory = categories
+      // this.arcCategory = categories
       if (!categories) {
         return
       }
@@ -483,6 +483,7 @@ export default {
         // colors[e.name] = palette[i]
       })
       console.log(categoryArcs)
+      this.arcCategory = categoryArcs
       this.internaldata.categories = categoryArcs
       this.updateCategories()
       this.updateCategoryTexts()
