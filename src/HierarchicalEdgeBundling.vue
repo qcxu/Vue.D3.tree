@@ -191,7 +191,7 @@ export default {
       if ((this.textContraint) && (this.textContraint.xExtreme.value === xExtreme.value) &&
             (this.textContraint.yExtreme.value === yExtreme.value)) {
         // console.log(allNodes)
-        this.onCategories()
+        // this.onCategories()
         return allNodesPromise
       }
 
@@ -434,7 +434,7 @@ export default {
       root.x0 = root.x
       root.y0 = root.y
       this.updateNodes()
-      // this.onCategories()
+      this.onCategories()
     },
 
     onLinks (links) {
