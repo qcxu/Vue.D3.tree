@@ -221,6 +221,13 @@ export default {
 
       const newEdges = edges.enter().append('path').attr('class', 'link')
                             .attr('d', d => roundPath(line(d.source.path(d.target).map(p => ({x: p.x, y: 0.1})))))
+                            .classed('dashed', function (d) {
+                              console.log(d)
+                              if (d.type === 1) {
+                                console.log(d.type)
+                                return true
+                              }
+                            })
 
       const allEdges = this.internaldata.edges = edges.merge(newEdges)
       const promise = toPromise(allEdges.transition().duration(this.duration).attr('d', d => roundPath(line(d.source.path(d.target)))))
@@ -462,7 +469,7 @@ export default {
       }
 
       const {map} = this.internaldata
-      this.internaldata.links = links.map(link => ({source: map[link.source], target: map[link.target], type: link.type}))
+      this.internaldata.links = links.map(link => ({source: map[link.source], target: map[link.target], type: link.value}))
       // console.log(this.internaldata.links)
       this.updateLinks()
     },
@@ -595,6 +602,10 @@ export default {
 
 .graph.detailed .link {
   stroke-opacity: 0.01;
+}
+
+.graph .link.dashed {
+  stroke-dasharray: 3,3; 
 }
 
 .graph .link.link--source {

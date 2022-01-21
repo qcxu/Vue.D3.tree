@@ -62,12 +62,12 @@
 
 <script>
 import {hierarchicalEdgeBundling} from '../../src/'
-import rawVm from '../../data/DiscogsClientvm'
-//  import rawVm from '../../data/nhibernatevm'
+// import rawVm from '../../data/nhibernatevm'
 // import rawVm from '../../data/vm'
+import rawVm from '../../data/DiscogsClientvm'
 import CircularJson from 'circular-json'
-import EventLogger from './EventLogger'
 const vm = CircularJson.parse(rawVm)
+import EventLogger from './EventLogger'
 
 const data = {
   duration: 750,
@@ -84,7 +84,6 @@ const data = {
   //   {id: 2, name: 'implement', inName: 'implements', outName: 'is implemented by'},
   //   {id: 3, name: 'uses', inName: 'uses', outName: 'is used by'}
   // ]
-
 }
 
 export default {
