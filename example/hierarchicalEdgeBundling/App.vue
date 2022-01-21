@@ -54,8 +54,8 @@
  
    <div class="col-md-9 panel panel-default">
     <hierarchical-edge-bundling class="graph-root" ref="graph" :maxTextWidth="-1" identifier="id" 
-    :duration="duration" @mouseNodeOver="mouseNodeOver" @mouseNodeOut="mouseNodeOut" :data="tree" 
-    :links="links" node-text="text" :margin-x="marginX" :margin-y="marginY"/>
+    :duration="duration" @mouseNodeOver="mouseNodeOver" @mouseNodeOut="mouseNodeOut" @mouseNodeClick="mouseNodeClick"
+    :data="tree" :links="links" node-text="text" :margin-x="marginX" :margin-y="marginY" :arc-spacing="arcSpacing"/>
   </div>
 
   </div>
@@ -73,62 +73,19 @@ const vm = CircularJson.parse(rawVm)
 const data = {
   duration: 750,
   marginX: 10,
-  marginY: 10,
+  marginY: 50,
   events: [],
   loading: false,
   highlightedNode: null,
+  arcSpacing: 3,
   tree: vm.Graph.tree,
   links: vm.Graph.links
-  // categories: [{
-  //   'name': 'Query',
-  //   'start': 5.684210526315789,
-  //   'end': 28.421052631578945,
-  //   'r': 253.967282208187,
-  //   'color': '#D5CFD4'
-  // },
-  // {
-  //   'name': 'Result',
-  //   'start': 39.78947368421053,
-  //   'end': 238.73684210526315,
-  //   'r': 253.967282208187,
-  //   'color': '#EAE4E9'
-  // },
-  // {
-  //   'name': 'Internal',
-  //   'start': 253.89473684210526,
-  //   'end': 269.05263157894734,
-  //   'r': 253.967282208187,
-  //   'color': '#FFF1E6'
-  // },
-  // {
-  //   'name': 'DiscogsClient',
-  //   'start': 291.7894736842105,
-  //   'end': 348.63157894736844,
-  //   'r': 253.967282208187,
-  //   'color': '#FDE2E4'
-  // }]
-  // tree: {
-  //   text: 'father',
-  //   children: [{
-  //     text: 'son1',
-  //     children: [{text: 'grandson', id: 1}, {text: 'grandson2', id: 2}]
-  //   }, {
-  //     text: 'son2',
-  //     children: [{text: 'grandson3', id: 3}, {text: 'grandson4', id: 4}]
-  //   }, {
-  //     text: 'son3',
-  //     children: [{text: 'grandson5', id: 5}, {text: 'grandson6', id: 6}]
-  //   }]
-  // },
-  // links: [
-  //   {source: 3, target: 1, type: 1},
-  //   {source: 3, target: 4, type: 2}
-  // ],
   // linkTypes: [
   //   {id: 1, name: 'depends', symmetric: true},
   //   {id: 2, name: 'implement', inName: 'implements', outName: 'is implemented by'},
   //   {id: 3, name: 'uses', inName: 'uses', outName: 'is used by'}
   // ]
+
 }
 
 export default {
@@ -153,13 +110,20 @@ export default {
       this.events.push({eventName, data: data.data})
     },
     mouseNodeOver (event) {
+      console.log('mouseNodeOver!!')
       this.onEvent('mouseNodeOver', event)
       this.changeCurrent(event.element)
     },
     mouseNodeOut (event) {
       this.onEvent('mouseNodeOut', event)
       this.changeCurrent(null)
+    },
+    mouseNodeClick (event) {
+      console.log('clicked!!!')
+      this.onEvent('mouseNodeClick', event)
+      console.log(event)
     }
+
   },
   watch: {
     highlightedNode (value) {

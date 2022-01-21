@@ -1,5 +1,5 @@
 <template>
-  <div :class="rootClass" v-resize="resize">
+  <div :class="rootClass" v-resize="resize" id="heb">
   </div>
 </template>
 <script>
@@ -42,6 +42,10 @@ const props = {
   duration: {
     type: Number,
     default: 500
+  },
+  arcSpacing: {
+    type: Number,
+    default: 3
   }
 }
 
@@ -60,11 +64,10 @@ export default {
     return {
       textContraint: null,
       highlightedNode: null,
+      highlightedArc: null,
       m0: null,
       rotate: 0,
-      arcG: null,
-      lineG: null,
-      arcCategory: null
+      tooltip: null
     }
   },
 
@@ -75,21 +78,27 @@ export default {
           .attr('height', size.height)
     const g = this.transformSvg(svg.append('g'), size)
     console.log(size)
+    this.tooltip = d3.select(this.$el)
+      .append('div')
+      .style('opacity', 0)
+      .attr('class', 'tooltip')
+      .style('background-color', 'white')
+      .style('border', 'solid')
+      .style('border-width', '2px')
+      .style('border-radius', '5px')
+      .style('padding', '5px')
 
     g.append('svg:path')
-          .attr('class', 'arc')
-          .attr('d', d3.arc().outerRadius(this.$el.clientHeight / 2).innerRadius(0).startAngle(0).endAngle(2 * Math.PI))
-          // .attr('d', d3.svg.arc().outerRadius(ry - 120).innerRadius(0).startAngle(0).endAngle(2 * Math.PI))
-          // .attr('d', d3.svg.arc().outerRadius(ry - 100).innerRadius(280).startAngle((1.44 / 180) * Math.PI).endAngle((5.76 / 180) * Math.PI))
-          .on('mousedown', this.mouseDown)
+      .attr('class', 'arc')
+      .attr('d', d3.arc().outerRadius(this.$el.clientHeight / 2).innerRadius(0).startAngle(0).endAngle(2 * Math.PI))
+      .on('mousedown', this.mouseDown)
 
     d3.select(window)
-          .on('mousemove', this.mouseMove)
-          .on('mouseup', this.mouseUp)
+      .on('mousemove', this.mouseMove)
+      .on('mouseup', this.mouseUp)
 
     const tree = this.tree
-    // console.log('tree')
-    // console.log(this.data)
+
     this.internaldata = {
       svg,
       g,
@@ -167,6 +176,7 @@ export default {
         d.layoutInfo = layoutNode(false, 6, d)
       })
 
+      // newNodes.append('svg:a').attr('xlink:href', function (d) { return '/application/' + d._id }).append('text').attr('dy', '.35em')
       newNodes.append('text').attr('dy', '.35em')
 
       const text = allNodes.select('text')
@@ -190,8 +200,6 @@ export default {
 
       if ((this.textContraint) && (this.textContraint.xExtreme.value === xExtreme.value) &&
             (this.textContraint.yExtreme.value === yExtreme.value)) {
-        // console.log(allNodes)
-        // this.onCategories()
         return allNodesPromise
       }
 
@@ -205,7 +213,6 @@ export default {
 
     updateLinks () {
       const {g, links} = this.internaldata
-      this.lineG = g
       if (!links) {
         return
       }
@@ -224,27 +231,20 @@ export default {
 
     updateCategories () {
       const {g, categories} = this.internaldata
-      this.arcG = g
-      // this.arcCategory = categories
       if (!categories) {
         return
       }
-      // const edges = g.selectAll('.link').data(links, l => l.source._id + '-' + l.target._id + '-' + l.type)
-      // const line = layout.getLine(d3).curve(d3.curveBundle.beta(0.55))
-
-      // const newEdges = edges.enter().append('path').attr('class', 'link')
-      //                       .attr('d', d => roundPath(line(d.source.path(d.target).map(p => ({x: p.x, y: 0.1})))))
-
-      // const allEdges = this.internaldata.edges = edges.merge(newEdges)
-      // const promise = toPromise(allEdges.transition().duration(this.duration).attr('d', d => roundPath(line(d.source.path(d.target)))))
 
       const arcs = g.selectAll('.category').data(categories)
-      // const arc = layout.getArc(d3)
 
-      const newArcs = arcs.enter().append('svg:path')
+      const newArcs = arcs.enter().append('g')
         .attr('class', 'category')
+        .on('mouseover', this.arcMouseover)
+        .on('mousemove', this.arcMousemove)
+        .on('mouseleave', this.arcMouseleave)
+
+      newArcs.append('svg:path')
         .attr('id', function (d, i) { return 'categoryArc_' + i })
-        // .attr('d', d => arc(d))
         .attr('d', function (d) {
           return d3.arc()({
             outerRadius: d.r - 5,
@@ -254,31 +254,19 @@ export default {
           })
         })
         .style('fill', function (d) { return d.color })
-      const allArcs = this.internaldata.arcs = arcs.merge(newArcs)
-      const promise = toPromise(allArcs.transition().duration(this.duration * 2).attr('opacity', 1))
 
-      arcs.exit().remove()
-      return promise
-    },
-
-    updateCategoryTexts () {
-      const {g, categories} = this.internaldata
-      if (!categories) {
-        return
-      }
-
-      const arcTexts = g.selectAll('.categoryText').data(categories)
-      const newArcTexts = arcTexts.enter().append('svg:text')
+      newArcs.append('svg:text')
         .attr('class', 'categoryText')
         .attr('x', 5) // Move the text from the start angle of the arc
         .attr('dy', 20) // Move the text down
         .append('svg:textPath')
         .attr('xlink:href', function (d, i) { return '#categoryArc_' + i })
-        .text(function (d) { return d.name })
-      const allArcTexts = this.internaldata.arcTexts = arcTexts.merge(newArcTexts)
-      const promise = toPromise(allArcTexts.transition().duration(this.duration * 2).attr('opacity', 1))
+        .text(function (d) { return d.displayName })
 
-      arcTexts.exit().remove()
+      const allArcs = this.internaldata.arcs = arcs.merge(newArcs)
+      const promise = toPromise(allArcs.transition().duration(this.duration * 2).attr('opacity', 1))
+
+      arcs.exit().remove()
       return promise
     },
 
@@ -291,7 +279,24 @@ export default {
     },
 
     nodeClick (d) {
+      console.log('mouse clicked')
       this.emit('mouseNodeClick', d)
+    },
+
+    arcMouseover (d) {
+      this.tooltip.style('opacity', 1)
+    },
+
+    arcMousemove (d) {
+      this.tooltip
+      .html(d.name)
+      .style('left', (d3.event.pageX - this.$el.clientWidth / 2) + 'px')
+      .style('top', (d3.event.pageY) + 'px')
+    },
+
+    arcMouseleave (d) {
+      this.tooltip
+        .style('opacity', 0)
     },
 
     mouse (e) {
@@ -300,14 +305,12 @@ export default {
 
     mouseDown () {
       this.m0 = this.mouse(d3.event)
-      // console.log(this.m0)
       d3.event.preventDefault()
     },
 
     mouseMove () {
       d3.event.preventDefault()
       if (this.m0) {
-        // console.log(d3.select(this.$el))
         var m1 = this.mouse(d3.event)
         var dm = Math.atan2(this.cross(this.m0, m1), this.dot(this.m0, m1)) * 180 / Math.PI
         d3.select(this.$el).style('-webkit-transform', 'translateY(0px)rotateZ(' + dm + 'deg)translateY(0px)')
@@ -471,10 +474,21 @@ export default {
           start = Math.min(start, n.x)
           end = Math.max(start, n.x)
         })
+        let arcLen = childNodes.length
+        let strLen = category.length
+        let displayName = ''
+        if (arcLen * 2 >= strLen) {
+          displayName = category
+        } else {
+          if (arcLen > 1) {
+            displayName = category.slice(0, arcLen * 2)
+          }
+        }
         categoryArcs.push({
           name: category,
-          start: start,
-          end: end,
+          displayName: displayName,
+          start: start - this.arcSpacing,
+          end: end + this.arcSpacing,
           r: r
         })
       }
@@ -483,13 +497,9 @@ export default {
       var palette = ['#D5CFD4', '#EAE4E9', '#FFF1E6', '#FDE2E4', '#FAD2E1', '#E2ECE9', '#BEE1E6', '#F0EFEB', '#DFE7FD', '#CDDAFD', '#D2DDFD']
       categoryArcs.forEach((e, i) => {
         e['color'] = palette[i]
-        // colors[e.name] = palette[i]
       })
-      console.log(categoryArcs)
-      this.arcCategory = categoryArcs
       this.internaldata.categories = categoryArcs
       this.updateCategories()
-      this.updateCategoryTexts()
     },
 
     instantClean () {
@@ -500,7 +510,7 @@ export default {
 
     redraw () {
       const {root} = this.internaldata
-      return root ? Promise.all([this.updateNodes(), this.updateLinks(), this.updateCategories(), this.updateCategoryTexts()]) : Promise.resolve('no graph')
+      return root ? Promise.all([this.updateNodes(), this.updateLinks(), this.updateCategories()]) : Promise.resolve('no graph')
     },
 
     applyTransition (size, {margin}) {
@@ -545,6 +555,7 @@ export default {
       newCurrent && this.showDependencies(newCurrent)
       this.$emit('highlightedNodeChanged', {new: newCurrent, old: oldCurrent})
     }
+
   }
 }
 </script>
@@ -576,8 +587,12 @@ export default {
 }
 
 .graph .nodetree text {
-  font: 10px sans-serif;
+  font: 14px sans-serif;
   transition: opacity 0.5s, fill 0.5s;
+}
+
+.graph .nodetree a:hover{
+  text-decoration: none;
 }
 
 .graph.detailed .nodetree.node--source text{
@@ -602,6 +617,10 @@ export default {
 .graph.detailed .category,
 .graph.detailed .categoryText{
   opacity: 0.1;
+}
+
+.graph .categoryText:hover{
+  cursor: default;
 }
 
 path.arc {
