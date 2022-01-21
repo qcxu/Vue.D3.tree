@@ -363,10 +363,14 @@ export default {
     },
 
     showDependencies (d) {
-      const {edges, nodes} = this.internaldata
+      const {edges, nodes, arcs} = this.internaldata
       if (!edges) {
         return
       }
+
+      console.log('arcs')
+      console.log(arcs)
+      console.log(edges)
       nodes.each(n => { n.target = n.source = false })
 
       const rootElement = d3.selectAll([this.$el]).style('display', 'none').classed('detailed', true)
@@ -395,14 +399,20 @@ export default {
       nodesSelected
         .select('text')
         .attr('text-anchor', d => d.layoutInfo.anchor)
+      console.log(d)
+      arcs.filter(l => l.name === d.parent.data.text)
+        .classed('parent-arc', true)
+        .raise()
     },
 
     reset (d) {
-      const {edges, nodes} = this.internaldata
+      const {edges, nodes, arcs} = this.internaldata
       if (!edges) {
         return
       }
       const rootElement = d3.selectAll([this.$el]).style('display', 'none').classed('detailed', false)
+
+      arcs.classed('parent-arc', false)
 
       edges.classed('link--target', false)
           .classed('link--source', false)
@@ -578,6 +588,11 @@ export default {
   stroke-opacity: 1;
 }
 
+.graph.detailed .category.parent-arc,
+.graph.detailed .category.parent-arc .categoryText{
+  opacity: 1;
+}
+
 .graph.detailed .link {
   stroke-opacity: 0.01;
 }
@@ -593,6 +608,7 @@ export default {
 .graph .nodetree text {
   font: 14px sans-serif;
   transition: opacity 0.5s, fill 0.5s;
+  cursor: pointer;
 }
 
 .graph .nodetree a:hover{
@@ -615,12 +631,12 @@ export default {
 }
 
 .graph.detailed .nodetree text{
-  opacity: 0.1;
+  opacity: 0.2;
 }
 
 .graph.detailed .category,
 .graph.detailed .categoryText{
-  opacity: 0.1;
+  opacity: 0.2;
 }
 
 .graph .categoryText:hover{
