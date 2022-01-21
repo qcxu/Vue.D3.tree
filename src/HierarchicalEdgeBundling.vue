@@ -288,10 +288,12 @@ export default {
     },
 
     arcMousemove (d) {
+      console.log(d)
+      console.log(d3.event)
       this.tooltip
       .html(d.name)
-      .style('left', (d3.event.pageX - this.$el.clientWidth / 2) + 'px')
-      .style('top', (d3.event.pageY) + 'px')
+      .style('left', (d3.event.offsetX + 10) + 'px')
+      .style('top', (d3.event.offsetY + 10) + 'px')
     },
 
     arcMouseleave (d) {
@@ -494,7 +496,9 @@ export default {
       }
       console.log(categoryArcs)
 
-      var palette = ['#D5CFD4', '#EAE4E9', '#FFF1E6', '#FDE2E4', '#FAD2E1', '#E2ECE9', '#BEE1E6', '#F0EFEB', '#DFE7FD', '#CDDAFD', '#D2DDFD']
+      var palette = ['#D5CFD4', '#EAE4E9', '#FFF1E6', '#FDE2E4', '#FAD2E1', '#E2ECE9',
+        '#BEE1E6', '#F0EFEB', '#DFE7FD', '#CDDAFD', '#D2DDFD', '#BEEAD3',
+        '#BEEAD3', '#FFE0D6', '#E7CBFF', '#BBE5FF', '#FFFFB0', '#EDEDED']
       categoryArcs.forEach((e, i) => {
         e['color'] = palette[i]
       })
@@ -626,5 +630,11 @@ export default {
 path.arc {
   cursor: move;
   fill: #fff;
+}
+
+.tooltip {
+  position: absolute;
+  z-index: 1070;
+  display: block;
 }
 </style>

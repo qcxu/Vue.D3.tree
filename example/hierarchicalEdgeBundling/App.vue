@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="container-fluid">
-    <div class="col-md-3">
+    <!-- <div class="col-md-3">
 
       <div class="panel panel-default">
         <div class="panel-heading">Props</div>
@@ -41,7 +41,6 @@
             <div class="form-group">
               <span v-if="highlightedNode">Current Node: {{highlightedNode.data.text}}</span>
               <span v-else>No Node selected.</span>
-               <!-- <i v-if="loading" class="fa fa-spinner fa-spin fa-2x fa-fw"></i> -->
             </div>
 
         </div> 
@@ -50,7 +49,7 @@
 
     <event-logger :events="events"/>
 
-  </div>
+  </div> -->
  
    <div class="col-md-9 panel panel-default">
     <hierarchical-edge-bundling class="graph-root" ref="graph" :maxTextWidth="-1" identifier="id" 
