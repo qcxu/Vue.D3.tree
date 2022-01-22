@@ -78,7 +78,8 @@ const data = {
   highlightedNode: null,
   arcSpacing: 3,
   tree: vm.Graph.tree,
-  links: vm.Graph.links
+  links: vm.Graph.links,
+  clickedNode: null
   // linkTypes: [
   //   {id: 1, name: 'depends', symmetric: true},
   //   {id: 2, name: 'implement', inName: 'implements', outName: 'is implemented by'},
@@ -118,14 +119,19 @@ export default {
     },
     mouseNodeClick (event) {
       console.log('clicked!!!')
-      this.onEvent('mouseNodeClick', event)
+      // this.onEvent('mouseNodeClick', event)
       console.log(event)
+      // this.clickedNode = event.element
     }
 
   },
   watch: {
     highlightedNode (value) {
       this.$refs['graph'].highlightedNode = value
+    },
+
+    clickedNode (value) {
+      this.$refs['graph'].clickedNode = value
     }
   }
 }

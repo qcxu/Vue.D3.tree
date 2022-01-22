@@ -287,11 +287,18 @@ export default {
 
     nodeClick (d) {
       console.log('mouse clicked')
+      const {nodes} = this.internaldata
+      console.log(nodes)
+      const nodesFrom = nodes.filter(n => n.target)
+      const nodesTo = nodes.filter(n => n.source)
+      d.nodesFrom = nodesFrom
+      d.nodesTo = nodesTo
       this.emit('mouseNodeClick', d)
     },
 
     arcMouseover (d) {
       this.tooltip.style('opacity', 1)
+        .style('z-index', 1070)
     },
 
     arcMousemove (d) {
@@ -301,11 +308,13 @@ export default {
       .html(d.name)
       .style('left', (d3.event.offsetX + 10) + 'px')
       .style('top', (d3.event.offsetY + 10) + 'px')
+      .style('z-index', 1070)
     },
 
     arcMouseleave (d) {
       this.tooltip
         .style('opacity', 0)
+        .style('z-index', -999)
     },
 
     mouse (e) {
@@ -575,6 +584,11 @@ export default {
       oldCurrent && this.reset(oldCurrent)
       newCurrent && this.showDependencies(newCurrent)
       this.$emit('highlightedNodeChanged', {new: newCurrent, old: oldCurrent})
+    },
+
+    clickedNode (newCurrent, oldCurrent) {
+      oldCurrent && this.reset(oldCurrent)
+      this.$emit('clickedNodeChanged', {new: newCurrent, old: oldCurrent})
     }
 
   }
@@ -584,7 +598,7 @@ export default {
 <style>
 .graph .link {
   fill: none;
-  stroke: blue;
+  stroke: #5CC4FF;
   stroke-opacity: 0.2;
   stroke-width: 1.5px;
   transition: stroke 0.5s, stroke-opacity 0.5s;
@@ -609,11 +623,11 @@ export default {
 }
 
 .graph .link.link--source {
-  stroke: #d62728;
+  stroke: #EF3340;
 }
 
 .graph .link.link--target {
-  stroke: #2ca02c;
+  stroke: #65D097;
 }
 
 .graph .nodetree text {
@@ -627,11 +641,11 @@ export default {
 }
 
 .graph.detailed .nodetree.node--source text{
-  fill: #2ca02c;
+  fill: #65D097;
 }
 
 .graph.detailed .nodetree.node--target text{
-  fill: #d62728;
+  fill: #EF3340;
 }
 
 .graph.detailed .nodetree.node--selected text,
@@ -661,7 +675,7 @@ path.arc {
 
 .tooltip {
   position: absolute;
-  z-index: 1070;
+  /* z-index: 1070; */
   display: block;
 }
 </style>
