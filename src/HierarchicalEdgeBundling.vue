@@ -287,12 +287,16 @@ export default {
 
     nodeClick (d) {
       console.log('mouse clicked')
-      const {nodes} = this.internaldata
+      const {nodes, edges} = this.internaldata
       console.log(nodes)
-      const nodesFrom = nodes.filter(n => n.target)
-      const nodesTo = nodes.filter(n => n.source)
+      const nodesFrom = nodes.filter(n => n.source)
+      const nodesTo = nodes.filter(n => n.target)
+      const edgesFrom = edges.filter(l => l.source === d)
+      const edgesTo = edges.filter(l => l.target === d)
       d.nodesFrom = nodesFrom
       d.nodesTo = nodesTo
+      d.edgesFrom = edgesFrom
+      d.edgesTo = edgesTo
       this.emit('mouseNodeClick', d)
     },
 
@@ -478,7 +482,7 @@ export default {
       }
 
       const {map} = this.internaldata
-      this.internaldata.links = links.map(link => ({source: map[link.source], target: map[link.target], type: link.value}))
+      this.internaldata.links = links.map(link => ({source: map[link.source], target: map[link.target], type: link.value, id: link.id}))
       // console.log(this.internaldata.links)
       this.updateLinks()
     },
