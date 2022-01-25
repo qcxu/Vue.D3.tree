@@ -105,11 +105,9 @@ export default {
       })
     },
     onEvent (eventName, data) {
-      // console.log(eventName, data)
       this.events.push({eventName, data: data.data})
     },
     mouseNodeOver (event) {
-      console.log('mouseNodeOver!!')
       this.onEvent('mouseNodeOver', event)
       this.changeCurrent(event.element)
     },
@@ -118,10 +116,6 @@ export default {
       this.changeCurrent(null)
     },
     mouseNodeClick (event) {
-      console.log('clicked!!!')
-      // this.onEvent('mouseNodeClick', event)
-      console.log(event)
-      // this.clickedNode = event.element
     }
 
   },

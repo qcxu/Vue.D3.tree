@@ -77,7 +77,6 @@ export default {
           .attr('width', size.width)
           .attr('height', size.height)
     const g = this.transformSvg(svg.append('g'), size)
-    console.log(size)
     this.tooltip = d3.select(this.$el)
       .append('div')
       .style('opacity', 0)
@@ -222,9 +221,7 @@ export default {
       const newEdges = edges.enter().append('path').attr('class', 'link')
                             .attr('d', d => roundPath(line(d.source.path(d.target).map(p => ({x: p.x, y: 0.1})))))
                             .classed('dashed', function (d) {
-                              console.log(d)
                               if (d.type === 1) {
-                                console.log(d.type)
                                 return true
                               }
                             })
@@ -286,15 +283,9 @@ export default {
     },
 
     nodeClick (d) {
-      console.log('mouse clicked')
-      const {nodes, edges} = this.internaldata
-      console.log(nodes)
-      const nodesFrom = nodes.filter(n => n.source)
-      const nodesTo = nodes.filter(n => n.target)
+      const {edges} = this.internaldata
       const edgesFrom = edges.filter(l => l.source === d)
       const edgesTo = edges.filter(l => l.target === d)
-      d.nodesFrom = nodesFrom
-      d.nodesTo = nodesTo
       d.edgesFrom = edgesFrom
       d.edgesTo = edgesTo
       this.emit('mouseNodeClick', d)
@@ -306,8 +297,6 @@ export default {
     },
 
     arcMousemove (d) {
-      console.log(d)
-      console.log(d3.event)
       this.tooltip
       .html(d.name)
       .style('left', (d3.event.offsetX + 10) + 'px')
@@ -353,12 +342,9 @@ export default {
         d3.select(this.$el).style('-webkit-transform', null)
         const size = this.getSize()
         let that = this
-        // console.log(this.rotate)
         g.attr('transform', 'translate(' + size.width / 2 + ',' + size.height / 2 + ')rotate(' + this.rotate + ')')
           .selectAll('g.nodetree text')
           .attr('text-anchor', function (d) {
-            // console.log(d)
-            // console.log((d.layoutInfo.rotate + that.rotate + 90) % 360)
             return (d.layoutInfo.rotate + that.rotate + 90) % 360 < 180 ? 'start' : 'end'
           })
           .attr('transform', function (d) { return (d.layoutInfo.rotate + that.rotate + 90) % 360 < 180 ? `rotate(${d.layoutInfo.rotate})` : `rotate(${d.layoutInfo.rotate + 180} )` })
@@ -366,7 +352,6 @@ export default {
           n.layoutInfo.anchor = (n.layoutInfo.rotate + that.rotate + 90) % 360 < 180 ? 'start' : 'end'
           n.layoutInfo.textRotate = (n.layoutInfo.rotate + that.rotate + 90) % 360 < 180 ? 0 : 180
         })
-        // console.log(nodes)
       }
     },
 
@@ -387,10 +372,6 @@ export default {
       if (!edges) {
         return
       }
-
-      console.log('arcs')
-      console.log(arcs)
-      console.log(edges)
       nodes.each(n => { n.target = n.source = false })
 
       const rootElement = d3.selectAll([this.$el]).style('display', 'none').classed('detailed', true)
@@ -419,7 +400,6 @@ export default {
       nodesSelected
         .select('text')
         .attr('text-anchor', d => d.layoutInfo.anchor)
-      console.log(d)
       arcs.filter(l => l.name === d.parent.data.text)
         .classed('parent-arc', true)
         .raise()
@@ -483,23 +463,18 @@ export default {
 
       const {map} = this.internaldata
       this.internaldata.links = links.map(link => ({source: map[link.source], target: map[link.target], type: link.value, id: link.id}))
-      // console.log(this.internaldata.links)
       this.updateLinks()
     },
 
     onCategories () {
       const {nodes} = this.internaldata
-      console.log('onCategories - internaldata')
-      console.log(this.internaldata)
       let categories = {}
       nodes.each(n => {
         (categories[n.parent.data.text] = categories[n.parent.data.text] || []).push(n)
       })
-      console.log(categories)
       let categoryArcs = []
       for (const [category, childNodes] of Object.entries(categories)) {
         let start = childNodes[0].x
-        console.log(start)
         let end = childNodes[0].x
         let r = childNodes[0].y
         childNodes.forEach(n => {
@@ -524,7 +499,6 @@ export default {
           r: r
         })
       }
-      console.log(categoryArcs)
 
       var palette = ['#D5CFD4', '#EAE4E9', '#FFF1E6', '#FDE2E4', '#FAD2E1', '#E2ECE9',
         '#BEE1E6', '#F0EFEB', '#DFE7FD', '#CDDAFD', '#D2DDFD', '#BEEAD3',
