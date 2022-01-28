@@ -270,7 +270,7 @@ export default {
         .attr('dy', size.height / 40) // Move the text down
         .append('svg:textPath')
         .attr('xlink:href', function (d, i) { return '#categoryArc_' + i })
-        .text(function (d) { return d.displayName })
+        .text(function (d) { return d.text })
 
       const allArcs = this.internaldata.arcs = arcs.merge(newArcs)
       const promise = toPromise(allArcs.transition().duration(this.duration * 2).attr('opacity', 1))
@@ -303,7 +303,7 @@ export default {
 
     arcMousemove (d) {
       this.tooltip
-      .html(d.name)
+      .html(d.title)
       .style('left', (d3.event.offsetX + 10) + 'px')
       .style('top', (d3.event.offsetY + 10) + 'px')
       .style('z-index', 1070)
@@ -405,7 +405,7 @@ export default {
       nodesSelected
         .select('text')
         .attr('text-anchor', d => d.layoutInfo.anchor)
-      arcs.filter(l => l.name === d.parent.data.text)
+      arcs.filter(l => l.text === d.parent.data.text)
         .classed('parent-arc', true)
         .raise()
     },
@@ -496,8 +496,8 @@ export default {
           end = Math.max(start, n.x)
         })
         categoryArcs.push({
-          name: category.title,
-          displayName: category.text,
+          title: category.title,
+          text: category.text,
           start: start - this.arcSpacing,
           end: end + this.arcSpacing,
           r: r
