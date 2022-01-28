@@ -85,6 +85,7 @@ const data = {
   //   {id: 2, name: 'implement', inName: 'implements', outName: 'is implemented by'},
   //   {id: 3, name: 'uses', inName: 'uses', outName: 'is used by'}
   // ]
+
 }
 
 export default {
@@ -133,7 +134,7 @@ export default {
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
@@ -147,7 +148,7 @@ export default {
 }
 
 .graph-root {
-  height: 800px;
-  width: 800px;
+  height: 900px;
+  width: 900px;
 }
 </style>

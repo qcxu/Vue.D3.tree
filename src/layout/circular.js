@@ -49,7 +49,7 @@ export default {
   getLine (d3) {
     return d3
       .radialLine()
-      .radius((d) => d.y - 40)
+      .radius((d) => d.y - 50)
       .angle((d) => (d.x / 180) * Math.PI)
   },
 

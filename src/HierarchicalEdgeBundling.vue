@@ -215,8 +215,12 @@ export default {
       if (!links) {
         return
       }
+      const size = this.getSize()
       const edges = g.selectAll('.link').data(links, l => l.source._id + '-' + l.target._id + '-' + l.type)
-      const line = layout.getLine(d3).curve(d3.curveBundle.beta(0.55))
+      const line = d3.radialLine()
+                      .radius((d) => d.y - size.height / 20)
+                      .angle((d) => (d.x / 180) * Math.PI)
+                      .curve(d3.curveBundle.beta(0.55))
 
       const newEdges = edges.enter().append('path').attr('class', 'link')
                             .attr('d', d => roundPath(line(d.source.path(d.target).map(p => ({x: p.x, y: 0.1})))))
@@ -239,6 +243,7 @@ export default {
         return
       }
 
+      const size = this.getSize()
       const arcs = g.selectAll('.category').data(categories)
 
       const newArcs = arcs.enter().append('g')
@@ -252,8 +257,8 @@ export default {
         .attr('d', function (d) {
           return d3.arc()({
             outerRadius: d.r - 5,
-            innerRadius: d.r - 35,
-            startAngle: (d.start / 180) * Math.PI,
+            innerRadius: d.r - size.height / 20 + 5,
+            startAngle: ((d.start - 2) / 180) * Math.PI,
             endAngle: (d.end / 180) * Math.PI
           })
         })
@@ -262,7 +267,7 @@ export default {
       newArcs.append('svg:text')
         .attr('class', 'categoryText')
         .attr('x', 5) // Move the text from the start angle of the arc
-        .attr('dy', 20) // Move the text down
+        .attr('dy', size.height / 40) // Move the text down
         .append('svg:textPath')
         .attr('xlink:href', function (d, i) { return '#categoryArc_' + i })
         .text(function (d) { return d.displayName })
@@ -468,40 +473,39 @@ export default {
 
     onCategories () {
       const {nodes} = this.internaldata
-      let categories = {}
+      let categories = []
       nodes.each(n => {
-        (categories[n.parent.data.text] = categories[n.parent.data.text] || []).push(n)
+        let e = categories.find(el => el.text === n.parent.data.text)
+        if (e) {
+          e.nodes.push(n)
+        } else {
+          categories.push({
+            title: n.parent.data.title ? n.parent.data.title : n.parent.data.text,
+            text: n.parent.data.text,
+            nodes: [n]
+          })
+        }
       })
       let categoryArcs = []
-      for (const [category, childNodes] of Object.entries(categories)) {
-        let start = childNodes[0].x
-        let end = childNodes[0].x
-        let r = childNodes[0].y
-        childNodes.forEach(n => {
+      categories.forEach(category => {
+        let start = category.nodes[0].x
+        let end = category.nodes[0].x
+        let r = category.nodes[0].y
+        category.nodes.forEach(n => {
           start = Math.min(start, n.x)
           end = Math.max(start, n.x)
         })
-        let arcLen = childNodes.length
-        let strLen = category.length
-        let displayName = ''
-        if (arcLen * 2 >= strLen) {
-          displayName = category
-        } else {
-          if (arcLen > 1) {
-            displayName = category.slice(0, arcLen * 2)
-          }
-        }
         categoryArcs.push({
-          name: category,
-          displayName: displayName,
+          name: category.title,
+          displayName: category.text,
           start: start - this.arcSpacing,
           end: end + this.arcSpacing,
           r: r
         })
-      }
+      })
 
       var palette = ['#D5CFD4', '#EAE4E9', '#FFF1E6', '#FDE2E4', '#FAD2E1', '#E2ECE9',
-        '#BEE1E6', '#F0EFEB', '#DFE7FD', '#CDDAFD', '#D2DDFD', '#BEEAD3',
+        '#BEE1E6', '#F0EFEB', '#DFE7FD', '#f1c0e8', '#D2DDFD', '#fbf8cc',
         '#BEEAD3', '#FFE0D6', '#E7CBFF', '#BBE5FF', '#FFFFB0', '#EDEDED']
       categoryArcs.forEach((e, i) => {
         e['color'] = palette[i]
