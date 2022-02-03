@@ -646,8 +646,8 @@ export default {
   opacity: 0.2;
 }
 
-.graph .categoryText:hover{
-  cursor: default;
+.graph .categoryText {
+  pointer-events: none;
 }
 
 path.arc {
