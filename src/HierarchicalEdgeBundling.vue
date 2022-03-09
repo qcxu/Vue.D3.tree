@@ -67,7 +67,9 @@ export default {
       highlightedArc: null,
       m0: null,
       rotate: 0,
-      tooltip: null
+      tooltip: null,
+      clickedNode: null,
+      searchNode: null
     }
   },
 
@@ -410,6 +412,14 @@ export default {
         .raise()
     },
 
+    showSearchDependencies (d) {
+      const {nodes} = this.internaldata
+      const rootElement = d3.selectAll([this.$el]).style('display', 'none').classed('detailed', true)
+      nodes.filter(n => n.data.text.toLowerCase().includes(d.toLowerCase()))
+        .classed('node--selected', true)
+      rootElement.style('display', 'block')
+    },
+
     reset (d) {
       const {edges, nodes, arcs} = this.internaldata
       if (!edges) {
@@ -571,6 +581,11 @@ export default {
     clickedNode (newCurrent, oldCurrent) {
       oldCurrent && this.reset(oldCurrent)
       this.$emit('clickedNodeChanged', {new: newCurrent, old: oldCurrent})
+    },
+
+    searchNode (newCurrent, oldCurrent) {
+      oldCurrent && this.reset(oldCurrent)
+      newCurrent && this.showSearchDependencies(newCurrent)
     }
 
   }

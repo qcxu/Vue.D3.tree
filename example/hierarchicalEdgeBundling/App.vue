@@ -1,6 +1,6 @@
 <template>
   <div id="app" class="container-fluid">
-    <!-- <div class="col-md-3">
+    <div class="col-md-3">
 
       <div class="panel panel-default">
         <div class="panel-heading">Props</div>
@@ -8,7 +8,7 @@
         <div class="panel-body">
             <div class="form-horizontal">
 
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label for="margin-x" class="control-label col-sm-3">marginx</label>
               <div class="col-sm-7">
                 <input id="margin-x" class="form-control" type="range" min="0" max="200" v-model.number="marginX">
@@ -41,15 +41,18 @@
             <div class="form-group">
               <span v-if="highlightedNode">Current Node: {{highlightedNode.data.text}}</span>
               <span v-else>No Node selected.</span>
+            </div> -->
+            <div class="form-group">
+              <input id="search" class="form-control" v-model="searchNode">
             </div>
 
         </div> 
       </div>     
     </div>
 
-    <event-logger :events="events"/>
+    <!-- <event-logger :events="events"/> -->
 
-  </div> -->
+  </div>
  
    <div class="col-md-9 panel panel-default">
     <hierarchical-edge-bundling class="graph-root" ref="graph" :maxTextWidth="-1" identifier="id" 
@@ -79,7 +82,8 @@ const data = {
   arcSpacing: 3,
   tree: vm.Graph.tree,
   links: vm.Graph.links,
-  clickedNode: null
+  clickedNode: null,
+  searchNode: null
   // linkTypes: [
   //   {id: 1, name: 'depends', symmetric: true},
   //   {id: 2, name: 'implement', inName: 'implements', outName: 'is implemented by'},
@@ -117,6 +121,7 @@ export default {
       this.changeCurrent(null)
     },
     mouseNodeClick (event) {
+      this.clickedNode = event.element
     }
 
   },
@@ -127,7 +132,12 @@ export default {
 
     clickedNode (value) {
       this.$refs['graph'].clickedNode = value
+    },
+
+    searchNode (value) {
+      this.$refs['graph'].searchNode = value
     }
+
   }
 }
 </script>
